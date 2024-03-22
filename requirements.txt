@@ -1,0 +1,12 @@
+pymongo==4.5.0
+tk==0.1.0
+pandas==2.1.0
+FPDF==1.7.2
+Pillow==10.0.1
+pathlib==1.0.1
+qrcode==7.4.2
+pypdfium2==4.20.0
+python-dotenv==1.0.0
+opencv-python==4.8.0.76
+pypdf2==3.0.1
+qreader==3.11
