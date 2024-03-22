@@ -1,0 +1,17 @@
+pymongo==4.5.0
+pandas==2.1.0
+FPDF==1.7.2
+Pillow==10.0.1
+pathlib==1.0.1
+qrcode==7.4.2
+pypdfium2==4.20.0
+python-dotenv==1.0.0
+opencv-python==4.8.0.76
+pypdf2==3.0.1
+pyzbar==0.1.9
+fastapi>=0.68.0,<0.69.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.15.0,<0.16.0
+python-multipart>=0.0.5,<0.1.0
+openpyxl>=3.0.9,<4.0.0
+aiofiles>=0.7.0,<0.8.0

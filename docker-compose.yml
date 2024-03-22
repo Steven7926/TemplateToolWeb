@@ -1,0 +1,69 @@
+# docker-compose.yaml
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
+    environment:
+      # MONGO_INITDB_ROOT_USERNAME: root
+      # MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: templateTool
+    command: mongod --noauth --quiet --logpath /dev/null
+    networks:
+      - template-net
+
+  template-server:
+    image: template-server:1.0.0
+    container_name: template-server
+    restart: always
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    networks:
+      - template-net
+    depends_on:
+      - mongodb
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./server:/server
+    environment:
+       - CHOKIDAR_USEPOLLING=true
+       - WATCHFILES_FORCE_POLLING=true
+
+  template-web:
+    image: template-web:1.0.0
+    container_name: template-web
+    restart: always
+    build:
+      context: ./templateweb
+      dockerfile: Dockerfile
+    networks:
+      - template-net
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    depends_on:
+      - template-server
+    volumes:
+      - ./templateweb:/templateweb
+      - /templateweb/node_modules
+    environment:
+       - CHOKIDAR_USEPOLLING=true
+
+networks:
+  template-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  nodemodules: {}
