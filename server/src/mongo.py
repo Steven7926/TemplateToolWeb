@@ -3,6 +3,7 @@ import re
 import os
 from dotenv import load_dotenv
 import bson
+from typing import Union
 
 load_dotenv()
 MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING')
@@ -80,12 +81,12 @@ class Mongo:
             print(f"Error: {str(e)}")
     
     # Update student data functions
-    def update_student_one_field(self, id: str, field: str, value: str |  int  | bool) -> dict:
+    def update_student_one_field(self, id: str, field: str, value: Union[int, bool, str])  -> dict:
         try:
             student = {'_id': bson.ObjectId(id)}
             new_value = {"$set":  {field : value}}
             result = self.collection.update_one(student, new_value)
-            return result
+            return result.raw_result
         except Exception as e:
             print(f"Error: {str(e)}")
     

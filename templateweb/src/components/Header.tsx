@@ -36,6 +36,7 @@ export default function Header(props: Props) {
     };
 
     const onGlobalFilterChange = (e) => {
+        props.setSelectedSudents([])
         const value = e.target.value;
         let _filters = { ...props.filters };
 
