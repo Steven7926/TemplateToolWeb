@@ -15,9 +15,10 @@ export interface Student {
     teacher: string;
     school: string;
     location: string;
-    year: string;
+    year: number;
     image: string;
-    id: string;
+    id: number;
+    use_preset: boolean;
 }
 
 export interface ImageModal {

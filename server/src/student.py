@@ -3,7 +3,7 @@
 
 class Student: 
     def __init__(self, student):
-        self.mongo_id = str(student["_id"])
+        self.uuid = str(student["_id"]) if "_id" in student else student["uuid"]
         self.id = student["id"]
         self.name = student["name"]
         self.student_class = student["class"]
@@ -25,7 +25,7 @@ class Student:
 
     def to_dict(self) -> dict:
         return {
-            "mongo_id": self.mongo_id,
+            "uuid": self.uuid,
             "id": self.id,
             "name": self.name,
             "class": self.student_class,

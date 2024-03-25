@@ -66,7 +66,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App flex flex-col min-w-full items-center justify-center bg-main text-white">
+    <div className="App flex flex-col items-center justify-center bg-main text-white">
       {isLoading.loading && 
         <Loading isUploading = {isLoading.uploading}/>
       }
@@ -75,7 +75,7 @@ function App() {
           Template Tool
         </header>
       </Fade>
-      <div>
+      <div className='flex flex-col items-center justify-center my-4'>
         <Fade duration={800} delay={250} direction="down" triggerOnce = {true} fraction={0} damping={0.5}>
           <div className='flex flex-row items-center'>
               <button onClick = {uploadExcelFile} className='p-2 border-0 rounded-lg text-sm bg-button shadow-xl flex flex-row justify-center items-center'>
@@ -90,6 +90,8 @@ function App() {
               </button>
           </div>
         </Fade>
+      </div>
+      <div className='flex flex-col items-center justify-center'>
         <Fade duration={800} delay={500} direction="down" triggerOnce = {true} fraction={0} damping={0.5}>
           <StudentsTable students={students} fetchTableData={fetchTableData} setIsLoading={setIsLoading}/>
         </Fade>

@@ -11,13 +11,13 @@ from student import Student
 # information that may be needed to build the template.
 
 class Template:
-    def __init__(self, student, isBlank):
+    def __init__(self, student: Student, use_presets: bool):
         self.pdf = (FPDF(orientation = 'P', unit = 'mm', format = 'A4'))
         self.student = student
-        self.isBlank = isBlank
+        self.use_presets = use_presets
         self.title = 'Draw your picture inside the lines'
         self.caption = 'Any drawing outside will be lost on the card'
-        self.warningMessage =  '*Any damage to the alignment marks or QR code will render this template void\nand we cannot be held responsible for any issues this may cause*'
+        self.warning_message =  '*Any damage to the alignment marks or QR code will render this template void\nand we cannot be held responsible for any issues this may cause*'
     
     def _set_attributes(self):
         self.pdf.add_page()
@@ -34,7 +34,7 @@ class Template:
             box_size=40,
             border=4,
         )
-        qr.add_data(self.student.mongo_id)
+        qr.add_data(self.student.uuid)
         qr.make(fit=True)
         qrimage = qr.make_image(fill_colour="black", back_colour="white")
         student_name_list = self.student.split_name() +  "_qr_code.png"
@@ -64,7 +64,7 @@ class Template:
     def _generate_footer(self):
         self.pdf.set_font('DejaVuSans', '', 10)
         self.pdf.set_xy(2, -10)
-        self.pdf.multi_cell(150, 3, self.warningMessage, 0, 0, 'L')
+        self.pdf.multi_cell(150, 3, self.warning_message, 0, 0, 'L')
 
         _, qr_png = self._generate_qr_code()
         self.pdf.image(qr_png, 165, 265, 30, 30, type="png")
@@ -101,7 +101,7 @@ class Template:
 
 
     def generate_pdf(self, path):
-        if not self.isBlank:
+        if self.use_presets:
           templates = [f for f in listdir('./assets/templates') if isfile(join('./assets/templates', f))]
           for file in templates:
             self._set_attributes()

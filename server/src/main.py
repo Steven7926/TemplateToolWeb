@@ -30,7 +30,7 @@ app.add_middleware(
 )
 
 @app.get("/all_students/", response_description="Get all students for datatable display")
-def read_all_students():
+def read_all_students() -> dict:
     mongoInstance = Mongo()
     students = mongoInstance.return_all_with_uuid()
     res = []
@@ -41,60 +41,59 @@ def read_all_students():
     return {"students": res}
 
 @app.post("/student_update/", response_description="Update a field value for a student")
-def update_student_one_field(body: dict):
+def update_student_one_field(body: dict) -> dict:
     mongoInstance = Mongo()
     res = mongoInstance.update_student_one_field(body['student_id'], body["field"], body["value"])
     mongoInstance.close_client()
     return res
 
 @app.post("/students_upload_excel/", response_description="Upload an excel file of student data")
-async def upload_students(file_upload: UploadFile = File(...)):
+async def upload_students(file_upload: UploadFile = File(...)) -> dict:
     contents = await file_upload.read()
-    dataframe = pd.read_excel(io.BytesIO(contents))
-    excel = ExcelFile()
-    status = excel.upload_to_monogo(dataframe)
+    status = ExcelFile().upload_to_monogo(contents)
     return status
 
 @app.post("/students_delete/", response_description="Delete a single or list of students that were selected for deletion")
-def delete_selected_students(body: dict):
+def delete_selected_students(body: dict) -> dict:
     mongoInstance = Mongo()
 
-    # Hacky but resolves the right click without  selection first issue
+    # Check if students keys value is list, if not just delete the single student
     if not isinstance(body["students"], list):
-        body = {"students": [body["students"]]}
-
-    if len(body["students"]) == 1:
-        res = mongoInstance.check_and_delete(body["students"][0]['uuid'])
+        res = mongoInstance.check_and_delete(body["students"]['uuid'])
         mongoInstance.close_client()
-
+        if res["name"] is not None:
+            return {"status": "success"}
+        else:
+            return {"status": "failed"}
     else:
+        res_names  = []
         for student in body["students"]:
             res = mongoInstance.check_and_delete(student["uuid"])
+            res_names.append(res["name"])
         mongoInstance.close_client()
-
-    if res is not None:
-        return {"status": "success"}
-    else:
-        return {"status": "failed"}
+        if len(res_names) == len(body["students"]):
+            return {"status": "success"}
+        else:
+            return {"status": "failed"}
 
 @app.get("/students_delete_all/", response_description="Delete All Students in the DB")
-def delete_all_students():
+def delete_all_students() -> dict:
     mongoInstance = Mongo()
     res = mongoInstance.delete_all()
     mongoInstance.close_client()
-    if res is not None:
+    if res["success"]:
         return {"status": "success"}
     else:
         return {"status": "failed"}
     
 @app.get("/generatePDFs_all/", response_description="Generate PDFs for all students")
-def generatePDFs_for_all_students():
+def generatePDFs_for_all_students() -> FileResponse:
     mongoInstance = Mongo()
     students = mongoInstance.return_all_with_uuid()
     pdfs_for_merger = []
     for student in students:
         student = Student(student)
-        template = Template(student, True)
+        template = Template(student, student.use_preset)
         main_path = check_path_exists("./pdfs/", student.school, student.student_class)
         pdf = template.generate_pdf(main_path)
         pdfs_for_merger.append(pdf)
@@ -106,13 +105,13 @@ def generatePDFs_for_all_students():
     return response
 
 @app.post("/generatePDFs_list/", response_description="Generate PDFs for a list of students")
-def generatePDFs_for_student_list(body: dict):
+def generatePDFs_for_student_list(body: dict) -> FileResponse:
     mongoInstance = Mongo()
     pdfs_for_merger = []
     for uuid in body["students"]:
         student = mongoInstance.find_student(uuid)
         student = Student(student)
-        template = Template(student, True)
+        template = Template(student, student.use_preset)
         main_path = check_path_exists("./pdfs/", student.school, student.student_class)
         pdf = template.generate_pdf(main_path)
         pdfs_for_merger.append(pdf)
@@ -124,7 +123,7 @@ def generatePDFs_for_student_list(body: dict):
     return response
 
 @app.post("/upload_student_pdfs/", response_description="Upload student pdf files and update the students drawing")
-async def upload_student_pdfs(file_upload: UploadFile = File(...)):
+async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
     contents = await file_upload.read()
     with open("./"+file_upload.filename, "wb") as f:
         f.write(contents)
@@ -156,13 +155,12 @@ async def upload_student_pdfs(file_upload: UploadFile = File(...)):
         with open("drawing.png", "rb") as f:
             encoded = base64.b64encode(f.read())
             result = mongoInstance.update_raw_image(data[0].data.decode('utf-8'), encoded)
-        print(result)
         mongoInstance.close_client()
     return {"status": "success"}
 
 # Downloading all drawings
 @app.get("/downloadDrawings_all/", response_description="Download all drawings for all students")
-def downloadDrawings_all():
+def downloadDrawings_all() -> FileResponse:
     mongoInstance = Mongo()
     students = mongoInstance.return_all_with_uuid()
     res = [Student(student) for student in students]
@@ -183,38 +181,15 @@ def downloadDrawings_all():
     response = FileResponse("../Drawings.zip", filename="Drawings.zip")
     return response
 
-# Downloading all drawings
-@app.get("/downloadDrawings_all/", response_description="Download all drawings for all students")
-def downloadDrawings_all():
-    mongoInstance = Mongo()
-    students = mongoInstance.return_all_with_uuid()
-    res = [Student(student) for student in students]
-    mongoInstance.close_client()
-
-    for student in res:
-        image_name = student.name.split(' ')[0] + '_' + student.name.split(' ')[1] + '_drawing.png' 
-        main_path = check_path_exists("./processed_images/", student.school, student.student_class)
-        all_files_path =  create_all_files_path("./processed_images/")
-        decoded = base64.b64decode(student.b64_image)
-
-        with open(all_files_path + image_name, "wb") as f:
-            f.write(decoded)
-        with open(main_path + image_name, "wb") as f:
-            f.write(decoded)
-    zip_files('./processed_images', "../Drawings.zip")
-
-    response = FileResponse("../Drawings.zip", filename="Drawings.zip")
-    return response
-
 # Downloading a list of students drawings
 @app.post("/downloadDrawings_list/", response_description="Download all drawings for students listed")
-def downloadDrawings_list(body: dict):
+def downloadDrawings_list(body: dict) -> FileResponse:
     mongoInstance = Mongo()
     res = [Student(mongoInstance.find_student(uuid)) for uuid in body["students"]]
     mongoInstance.close_client()
 
     for student in res:
-        image_name = student.name.split(' ')[0] + '_' + student.name.split(' ')[1] + '_drawing.png' 
+        image_name = student.split_name() + '_drawing.png' 
         main_path = check_path_exists("./processed_images/", student.school, student.student_class)
         all_files_path =  create_all_files_path("./processed_images/")
         decoded = base64.b64decode(student.b64_image)

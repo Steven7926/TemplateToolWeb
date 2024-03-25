@@ -8,7 +8,6 @@ interface ImageProps {
 }
 
 export default function StudentDrawing(props:ImageProps) {
-
     return (
         <Dialog header={props.imageModal.student_name + "'s Drawing"} visible={props.imageModal.show}
                 style={{ width: '30vw' }} onHide={() => props.setImageModal({show: false, b64: '', student_name: ''})}
