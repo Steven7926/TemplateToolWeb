@@ -14,4 +14,4 @@
 ### Everything is dockerized and theres no authentication (for now) as per requirements,
 ### So to run it you just need to install docker and run:
     - docker-compose build && docker compose up
-#### from your favorite terminal. Then upload the "Example Template Data.xlsx"
+#### from your favorite terminal. Then open localhost:3000 and upload the "Example Template Data.xlsx"
