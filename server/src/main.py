@@ -6,8 +6,6 @@ from template_generator import Template
 from utils import check_path_exists, zip_and_merge_pdfs, create_all_files_path, zip_files, find_contours_and_crop
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-import pandas as pd
-import io
 import pypdfium2 as pdfium
 import cv2
 from pyzbar.pyzbar import decode
@@ -93,7 +91,7 @@ def generatePDFs_for_all_students() -> FileResponse:
     pdfs_for_merger = []
     for student in students:
         student = Student(student)
-        template = Template(student, student.use_preset)
+        template = Template(student)
         main_path = check_path_exists("./pdfs/", student.school, student.student_class)
         pdf = template.generate_pdf(main_path)
         pdfs_for_merger.append(pdf)

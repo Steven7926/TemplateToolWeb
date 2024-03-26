@@ -29,7 +29,7 @@ class ExcelFile:
             
             # ID and Name are required on the student object
             for student in data:
-                if student["id"] == "" and student["name"] == "":
+                if student["id"] == "" or student["name"] == "":
                     continue
                 # Check if the student already exists in the DB using year, class, and name.
                 # If they do we need to delete the student and add the new one, keeping previous uploaded image

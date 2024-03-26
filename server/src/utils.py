@@ -2,34 +2,38 @@
 import os
 import cv2
 import zipfile
-from PyPDF2 import PdfMerger
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 import shutil
+import time
 
 def check_path_exists(parent, school_name,  class_name):
     if not os.path.exists(parent):
-        os.mkdir(parent)
+        os.makedirs(parent, exist_ok=True)
                 
     if not os.path.exists(parent + school_name + "/"):
-        os.mkdir(parent + school_name + "/")
+        os.makedirs(parent + school_name + "/", exist_ok=True)
 
     if not os.path.exists(parent + school_name + "/" + class_name + "/"):
-            os.mkdir(parent + school_name + "/" + class_name + "/")
+            os.makedirs(parent + school_name + "/" + class_name + "/", exist_ok=True)
     
     return parent + school_name + "/" + class_name + "/"
 
 def create_all_files_path(parent):
     if not os.path.exists(parent):
-        os.mkdir(parent)
+        os.makedirs(parent, exist_ok=True)
     if not os.path.exists(parent + "All Drawings/"):
-        os.mkdir(parent + "All Drawings/")   
+        os.makedirs(parent + "All Drawings/", exist_ok=True)   
     return parent + "All Drawings/"
 
 def zip_and_merge_pdfs(pdfs_for_merger: list):
-    merger = PdfMerger()
+    writer = PdfWriter()
     for pdf in pdfs_for_merger:
-        merger.append(pdf)
-    merger.write("./pdfs/All_PDFs.pdf")
-    merger.close()
+        reader = PdfReader(pdf)
+        writer.append(reader)
+    with open("./pdfs/All_PDFs.pdf", "wb") as output_pdf:
+        writer.write(output_pdf)
+    print(time.time())
+
     zip_files('./pdfs', "../Templates.zip")
 
 def zip_files(path, zipName):

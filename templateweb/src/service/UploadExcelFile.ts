@@ -26,7 +26,8 @@ export async function UploadExcelFile(uploadedFile: File): Promise<StatusRespons
         return {success: false};
     }
 
-    // An effort to chunk larger files and transmit them in smaller pieces, the server-side code is not yet implemented
+    // An effort to chunk larger files and transmit them in smaller pieces, the server-side code is not yet implemented.
+    // Could beused  inthe future if data gets too large 
     // const CHUNK_SIZE = 1024;
     // const totalChunks = Math.ceil(content["byteLength"] / CHUNK_SIZE);
     // for (let chunk = 0; chunk < totalChunks; chunk++) {

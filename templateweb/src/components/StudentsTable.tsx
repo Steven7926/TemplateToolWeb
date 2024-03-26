@@ -160,7 +160,7 @@ export default function StudentsTable ({students, fetchTableData, setIsLoading}:
     return (
         <div className='mb-5'>
             <ContextMenu model={menuModel} ref={cm} />
-            <DataTable value={students} tableStyle={{ minWidth: '100%' }} paginator rows={5} rowsPerPageOptions={[5, 10, 20, 50]}
+            <DataTable value={students} tableStyle={{ minWidth: '50rem' }} paginator rows={5} rowsPerPageOptions={[5, 10, 20, 50]}
                         paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
                         currentPageReportTemplate="{first} to {last} of {totalRecords}" paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
                         stripedRows sortField='name' sortOrder={-1} resizableColumns columnResizeMode='expand' removableSort

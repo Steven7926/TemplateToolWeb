@@ -11,10 +11,9 @@ from student import Student
 # information that may be needed to build the template.
 
 class Template:
-    def __init__(self, student: Student, use_presets: bool):
+    def __init__(self, student: Student):
         self.pdf = (FPDF(orientation = 'P', unit = 'mm', format = 'A4'))
         self.student = student
-        self.use_presets = use_presets
         self.title = 'Draw your picture inside the lines'
         self.caption = 'Any drawing outside will be lost on the card'
         self.warning_message =  '*Any damage to the alignment marks or QR code will render this template void\nand we cannot be held responsible for any issues this may cause*'
@@ -101,7 +100,7 @@ class Template:
 
 
     def generate_pdf(self, path):
-        if self.use_presets:
+        if self.student.use_preset:
           templates = [f for f in listdir('./assets/templates') if isfile(join('./assets/templates', f))]
           for file in templates:
             self._set_attributes()
