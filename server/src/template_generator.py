@@ -41,11 +41,11 @@ class Template:
         return qrimage, student_name_list
     
     def _generate_header_and_box(self, template=None):
-        self.pdf.set_font('DejaVuSans', '', 15)
+        self.pdf.set_font('DejaVuSans', '', 10)
         self.pdf.set_xy(5, 0)
-        self.pdf.multi_cell(0, 10, "Id: " + str(self.student.id), 0, 0, 'C')
+        self.pdf.multi_cell(0, 10, "Id: " + str(self.student.uuid), 0, 0, 'C')
 
-        self.pdf.set_font('DejaVuSans', '', 25)
+        self.pdf.set_font('DejaVuSans', '', 16)
         self.pdf.set_xy(21, 8)
         self.pdf.multi_cell(0, 10, self.title, 0, 0, 'C')
 
@@ -56,8 +56,8 @@ class Template:
         if template != None:
             self.pdf.image('./assets/templates/' + template, 35, 35, 140, 140, type="png")
 
-        self.pdf.set_font('DejaVuSans', '', 24)
-        self.pdf.set_xy(20, 205)
+        self.pdf.set_font('DejaVuSans', '', 16)
+        self.pdf.set_xy(21, 205)
         self.pdf.multi_cell(0, 10, self.caption, 0, 0, 'C')
 
     def _generate_footer(self):
@@ -71,28 +71,28 @@ class Template:
     
     def _generate_student_details(self):
         self.pdf.set_xy(15, 230)
-        self.pdf.set_font('DejaVuSans', '', 18)
+        self.pdf.set_font('DejaVuSans', '', 16)
         self.pdf.cell(0, 6, 'Name:', 0, 0, 'L')
 
         self.pdf.set_xy(35, 230)
         self.pdf.multi_cell(80, 6, self.student.name, 0, 0, 'L')
 
         self.pdf.set_xy(120, 230)
-        self.pdf.set_font('DejaVuSans', '', 18)
+        self.pdf.set_font('DejaVuSans', '', 16)
         self.pdf.cell(0, 6, 'Class:', 0, 0, 'L')
 
         self.pdf.set_xy(139, 230)
         self.pdf.multi_cell(60, 6, self.student.student_class, 0, 0, 'L')
 
         self.pdf.set_xy(15, 250)
-        self.pdf.set_font('DejaVuSans', '', 18)
+        self.pdf.set_font('DejaVuSans', '', 16)
         self.pdf.cell(0, 6, 'Teacher:', 0, 0, 'L')
 
         self.pdf.set_xy(42, 250)
         self.pdf.multi_cell(80, 6, self.student.teacher, 0, 0, 'L')
 
         self.pdf.set_xy(120, 250)
-        self.pdf.set_font('DejaVuSans', '', 18)
+        self.pdf.set_font('DejaVuSans', '', 16)
         self.pdf.cell(0, 6, 'School:', 0, 0, 'L')
 
         self.pdf.set_xy(143, 250)

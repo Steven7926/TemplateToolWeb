@@ -11,6 +11,7 @@ import cv2
 from pyzbar.pyzbar import decode
 from PIL import Image
 import base64
+import  os
 
 app = FastAPI()
 
@@ -123,38 +124,47 @@ def generatePDFs_for_student_list(body: dict) -> FileResponse:
 @app.post("/upload_student_pdfs/", response_description="Upload student pdf files and update the students drawing")
 async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
     contents = await file_upload.read()
-    with open("./"+file_upload.filename, "wb") as f:
-        f.write(contents)
-    pdf = pdfium.PdfDocument("./"+file_upload.filename)
+    try:
+        with open("./"+file_upload.filename, "wb") as f:
+            f.write(contents)
+        pdf = pdfium.PdfDocument("./"+file_upload.filename)
 
-    for i in range(len(pdf)):
-        bitmap = pdf[i].render(
-            scale = 1,
-            rotation = 0
-        )
-        pil_img  = bitmap.to_pil()
-        processed_path = "./out_" + str(i) +".png"
-        pil_img.save(processed_path)
+        for i in range(len(pdf)):
+            bitmap = pdf[i].render(
+                scale = 1,
+                rotation = 0
+            )
+            pil_img  = bitmap.to_pil()
+            processed_path = "./out_" + str(i) +".png"
+            pil_img.save(processed_path)
 
-        # Load the image
-        image = cv2.imread(processed_path)
-        original = image.copy()
-        find_contours_and_crop(image, "drawing", True)
+            # Load the image
+            image = cv2.imread(processed_path)
+            original = image.copy()
+            find_contours_and_crop(image, "drawing", True)
 
-        # Cut image in half
-        w, h = image.shape[1], image.shape[0]
-        image_cropped = original[int(h/2):int(h), int(w/2):int(w)]
-        cv2.imwrite("./test.png", image_cropped)
-        find_contours_and_crop(image_cropped, "qr_code")
+            # Cut image in half
+            w, h = image.shape[1], image.shape[0]
+            image_cropped = original[int(h/2):int(h), int(w/2):int(w)]
+            cv2.imwrite("./image.png", image_cropped)
+            find_contours_and_crop(image_cropped, "qr_code")
 
-        data = decode(Image.open("qr_code.png"))
+            data = decode(Image.open("qr_code.png"))
 
-        mongoInstance = Mongo()
-        with open("drawing.png", "rb") as f:
-            encoded = base64.b64encode(f.read())
-            result = mongoInstance.update_raw_image(data[0].data.decode('utf-8'), encoded)
-        mongoInstance.close_client()
-    return {"status": "success"}
+            mongoInstance = Mongo()
+            with open("drawing.png", "rb") as f:
+                encoded = base64.b64encode(f.read())
+                result = mongoInstance.update_raw_image(data[0].data.decode('utf-8'), encoded)
+            os.remove("drawing.png")
+            os.remove("qr_code.png")
+            os.remove("out_" + str(i) + ".png")
+            os.remove("image.png")
+            mongoInstance.close_client()
+        os.remove("./"+file_upload.filename)
+        return {"status": "success"}
+    except Exception as e:
+        print(e)
+        return {"status": "failed"}
 
 # Downloading all drawings
 @app.get("/downloadDrawings_all/", response_description="Download all drawings for all students")

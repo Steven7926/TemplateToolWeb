@@ -4,7 +4,7 @@
 class Student: 
     def __init__(self, student):
         self.uuid = str(student["_id"]) if "_id" in student else student["uuid"]
-        self.id = student["id"]
+        self.id = int(student["id"])
         self.name = student["name"]
         self.student_class = student["class"]
         self.teacher = student["teacher"]
@@ -13,7 +13,7 @@ class Student:
         self.year = student["year"]
         self.image = student["image"]
         self.b64_image = student["b64_image"]
-        self.use_preset = student["use_preset"]
+        self.use_preset = bool(student["use_preset"])
 
     def split_name(self):
         if len(self.name.split(' ')) > 2:
