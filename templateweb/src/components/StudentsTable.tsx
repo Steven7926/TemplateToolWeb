@@ -16,7 +16,7 @@ import { Dropdown } from 'primereact/dropdown';
 import Header from './Header'
 
 interface TableProps {
-    students: Array<any>;
+    students: Student[];
     fetchTableData: Function;
     setIsLoading: Function;
 }
@@ -95,7 +95,7 @@ export default function StudentsTable ({students, fetchTableData, setIsLoading}:
     };
 
     const textEditor = (options) => {
-        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} className="w-3/4 text-center" />;
+        return <InputText type="text" value={options.value} onChange={(e) => options.editorCallback(e.target.value)} className="text-center w-full" />;
     };
 
     
@@ -114,12 +114,13 @@ export default function StudentsTable ({students, fetchTableData, setIsLoading}:
             event.preventDefault();
     };
     
-    const presetDropDown = (rowData) => {
+    const presetDropDown = (options) => {
         return (
-            <Dropdown value={rowData.use_preset} 
-                options={[{label: 'Yes', value: true}, {label: 'No', value: false}]} 
+            <Dropdown 
+                value={options.value} 
+                options={[{label: 'true', value: true}, {label: 'false', value: false}]} 
                 placeholder="Use Preset"
-                onChange={(e) => onCellEditComplete({rowData: rowData, newValue: e.value, field: 'use_preset', originalEvent: null})}
+                onChange={(e) => options.editorCallback(e.target.value)}
             />
         )
     }
@@ -160,24 +161,26 @@ export default function StudentsTable ({students, fetchTableData, setIsLoading}:
     return (
         <div className='mb-5'>
             <ContextMenu model={menuModel} ref={cm} />
-            <DataTable value={students} tableStyle={{ minWidth: '50rem' }} paginator rows={5} rowsPerPageOptions={[5, 10, 20, 50]}
+            
+            <DataTable value={students} tableStyle={{ maxWidth: '100%' }} paginator rows={5} rowsPerPageOptions={[5, 10, 20, 50]}
                         paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
                         currentPageReportTemplate="{first} to {last} of {totalRecords}" paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
                         stripedRows sortField='name' sortOrder={-1} resizableColumns columnResizeMode='expand' removableSort
                         emptyMessage="No students found." dataKey="id" filters={filters} globalFilterFields={globalFilterFields} ref={dt} 
-                        header={head} selectionMode='multiple' selection={selectedStudents} onSelectionChange={(e) => {setSelectedSudents(e.value)}}
+                        header={head} selectionMode='checkbox' selection={selectedStudents} onSelectionChange={(e) => {setSelectedSudents(e.value)}}
                         onContextMenu={(e) => addToSelection(e)}
                         contextMenuSelection={selectedStudents} 
                         onContextMenuSelectionChange={(e) => setSelectedSudents(e.value)}
             >
+                <Column selectionMode="multiple" headerStyle={{ width: '3rem', cursor: 'pointer' }} className="cursor-pointer"/>
                 {columns.map((col, index) => {
                 return <Column key={index} field={col.field !== 'b64_image' ? col.field : ""} body={col.field === 'b64_image' ? drawingBodyTemplate : null} header={col.header} sortable={col.sortable}
                                 editor={col.editable ? (options) => cellEditor(options): null} onCellEditComplete={onCellEditComplete} 
-                                className='text-center'/>;
+                            />;
 
                 })}
                 <Column key={columns.length} field={"use_preset"} header={"Use Preset"} sortable={false} 
-                        editor = {false} body={presetDropDown} className='text-center'
+                        editor={(options) => presetDropDown(options)} onCellEditComplete={onCellEditComplete}
                 />
             </DataTable>
             {memoWarning}
