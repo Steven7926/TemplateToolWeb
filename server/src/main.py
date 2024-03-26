@@ -155,16 +155,22 @@ async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
             with open("drawing.png", "rb") as f:
                 encoded = base64.b64encode(f.read())
                 result = mongoInstance.update_raw_image(data[0].data.decode('utf-8'), encoded)
-            os.remove("drawing.png")
-            os.remove("qr_code.png")
-            os.remove("out_" + str(i) + ".png")
-            os.remove("image.png")
+            os.remove("drawing.png") if os.path.exists("drawing.png") else None
+            os.remove("qr_code.png") if os.path.exists("qr_code.png") else None
+            os.remove("out_" + str(i) + ".png") if os.path.exists("out_" + str(i) + ".png") else None
+            os.remove("image.png") if os.path.exists("image.png") else None
             mongoInstance.close_client()
-        os.remove("./"+file_upload.filename)
+        os.remove("./"+file_upload.filename) if os.path.exists("./"+file_upload.filename) else None
         return {"status": "success"}
     except Exception as e:
         print(e)
         return {"status": "failed"}
+    finally:
+        os.remove("drawing.png") if os.path.exists("drawing.png") else None
+        os.remove("qr_code.png") if os.path.exists("qr_code.png") else None
+        os.remove("out_" + str(i) + ".png") if os.path.exists("out_" + str(i) + ".png") else None
+        os.remove("image.png") if os.path.exists("image.png") else None
+        os.remove("./"+file_upload.filename) if os.path.exists("./"+file_upload.filename) else None
 
 # Downloading all drawings
 @app.get("/downloadDrawings_all/", response_description="Download all drawings for all students")
