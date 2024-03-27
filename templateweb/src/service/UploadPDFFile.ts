@@ -6,7 +6,7 @@ export async function UploadPDFFile(uploadedFile: File): Promise<StatusResponse>
     const formData = new FormData();
     formData.append('file_upload', uploadedFile);
     try {
-        const response = await fetch('http://localhost:8000/upload_student_pdfs/', {
+        const response = await fetch(process.env.REACT_APP_API_PATH + '/upload_student_pdfs/', {
             method: 'POST',
             headers: {
             "Access-Control-Allow-Origin": "*"

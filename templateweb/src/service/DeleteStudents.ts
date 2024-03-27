@@ -4,14 +4,14 @@ export async function DeleteStudents(students: Array<{}>): Promise<StatusRespons
 
     try {
         const response =  students.length < 1 ?    
-            await fetch('http://localhost:8000/students_delete_all/', {
+            await fetch(process.env.REACT_APP_API_PATH + '/students_delete_all/', {
                 method: 'GET',
                 headers: {
                 "Access-Control-Allow-Origin": "*", 
                 }
             })
             :
-            await fetch('http://localhost:8000/students_delete/', {
+            await fetch(process.env.REACT_APP_API_PATH + '/students_delete/', {
             method: 'POST',
             headers: {
                 "Access-Control-Allow-Origin": "*", 

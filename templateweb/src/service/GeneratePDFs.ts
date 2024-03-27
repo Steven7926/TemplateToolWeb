@@ -8,7 +8,7 @@ export async function GeneratePDFs(selectedStudents: Student[]): Promise<FileFet
     try{
         if (selectedStudents.length > 0){
             let ids = selectedStudents.map(dict => dict.uuid);
-            response = await fetch('http://localhost:8000/generatePDFs_list/', {
+            response = await fetch(process.env.REACT_APP_API_PATH + '/generatePDFs_list/', {
                 method: 'POST',
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -18,7 +18,7 @@ export async function GeneratePDFs(selectedStudents: Student[]): Promise<FileFet
             }) 
         }
         else {
-            response = await fetch('http://localhost:8000/generatePDFs_all/', {
+            response = await fetch(process.env.REACT_APP_API_PATH + '/generatePDFs_all/', {
                 method: 'GET',
                 headers: {
                     "Access-Control-Allow-Origin": "*"

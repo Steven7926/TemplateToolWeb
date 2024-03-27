@@ -1,10 +1,11 @@
+// This file contains the function to fetch all students from the backend
 export interface GetResponse {
     students: Array<{}>;
 }
 
 export async function GetAllStudents(): Promise<GetResponse> {
     try {
-        const response = await fetch('http://localhost:8000/all_students/', {
+        const response = await fetch(process.env.REACT_APP_API_PATH  + '/all_students/', {
           headers: {
             "Access-Control-Allow-Origin": "*", 
             "Content-Type": "application/json"

@@ -6,4 +6,4 @@ RUN yarn install
 COPY . /templateweb
 #RUN yarn build
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start", "--host", "0.0.0.0"]

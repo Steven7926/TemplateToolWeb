@@ -6,7 +6,7 @@ export async function UploadExcelFile(uploadedFile: File): Promise<StatusRespons
     const formData = new FormData();
     formData.append('file_upload', uploadedFile);
     try {
-        const response = await fetch('http://localhost:8000/students_upload_excel/', {
+        const response = await fetch(process.env.REACT_APP_API_PATH + '/students_upload_excel/', {
             method: 'POST',
             headers: {
             "Access-Control-Allow-Origin": "*"
@@ -16,7 +16,8 @@ export async function UploadExcelFile(uploadedFile: File): Promise<StatusRespons
         if (!response.ok) 
             throw new Error('Network response was not ok');
         const data = await response.json();
-        if (data)
+        console.log(data);
+        if (data["status"] === "success")
             return {success: true};
         else
             return {success: false};

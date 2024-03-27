@@ -88,34 +88,34 @@ export default function Header(props: Props) {
     }, []);
 
     return (
-        <div className="flex flex-row">
-                <div className='flex justify-start items-start w-1/3'>
-                  <Button type="button" label="Clear" icon="pi pi-filter-slash" outlined onClick={clearFilter} className='m-2'/>
-                  <span className="p-input-icon-left flex flex-row">
-                      <i className="pi pi-search ml-40"/>
-                      <InputText value={props.globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search" className='p-2'/>
+        <div className="flex sm:flex-row flex-col items-center justify-between max-w-[95vw]">
+                <div className='flex flex-row'>
+                  <Button type="button" label="Clear" icon="pi pi-filter-slash" outlined onClick={clearFilter} className='mx-2 py-2'/>
+                  <span className="p-input-icon-right flex flex-row justify-center items-center">
+                      <InputText value={props.globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search" className='py-2 ml-1'/>
+                      <i className="pi pi-search"/>
                   </span>
                 </div>
-                <div className='flex flex-row justify-center items-center w-1/3'>
+                <div>
                   <Button type="button" icon="pi pi-file" onClick={() => props.downloadDrawings()} data-pr-tooltip="CSV" 
-                          className='m-2 pl-2 border-solid bg-button text-white'
+                          className='m-2 pl-2 bg-button text-white'
                   >
                     <span className='m-1 pl-1 pr-1'>Download Drawing(s)</span>
                   </Button>
                   <Button type="button" icon="pi pi-file-pdf" data-pr-tooltip="CSV" 
-                          className='m-2 pl-2 border-solid bg-button text-white' onClick={() => props.genereatePDFs()}
+                          className='m-2 pl-2 bg-button text-white' onClick={() => props.genereatePDFs()}
                   >
                     <span className='m-1 pl-1 pr-1'>Generate PDF(s)</span>
                   </Button>
                 </div>
-                <div className='flex flex-row justify-end items-end w-1/3'>
+                <div>
                   <Button type="button" icon="pi pi-file" aria-label='export csv' onClick={() => exportCSV(props.selectedStudents.length  > 0 ? true : false)} data-pr-tooltip="CSV" 
-                          className='m-2 pl-2 border-solid bg-button text-white'
+                          className='m-2 pl-2 bg-button text-white'
                   >
                     <span className='m-1 pl-1 pr-1'>CSV</span>
                   </Button>
                   <Button type="button" icon="pi pi-file-excel" aria-label='export excel' onClick={exportExcel} data-pr-tooltip="CSV" 
-                          className='m-2 pl-2 border-solid bg-button text-white'
+                          className='m-2 pl-2 bg-button text-white'
                   >
                     <span className='m-1 pl-1 pr-1'>Excel</span>
                   </Button>

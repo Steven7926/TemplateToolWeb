@@ -8,7 +8,7 @@ interface NewStudentInfo {
 
 export async function EditStudentInfo(edited: NewStudentInfo): Promise<StatusResponse> {
     try {
-        const response = await fetch('http://localhost:8000/student_update/', {
+        const response = await fetch(process.env.REACT_APP_API_PATH + '/student_update/', {
           method: 'POST',
           headers: {
             "Access-Control-Allow-Origin": "*", 
@@ -20,7 +20,7 @@ export async function EditStudentInfo(edited: NewStudentInfo): Promise<StatusRes
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        if (data.ok == 1)
+        if (data.ok === 1)
             return {success: true};
         else
             return {success: false};

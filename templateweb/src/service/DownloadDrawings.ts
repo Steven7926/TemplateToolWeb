@@ -8,7 +8,7 @@ export async function DownloadDrawings(selectedStudents: Student[]): Promise<Fil
     try{
         if (selectedStudents.length > 0){
             let ids = selectedStudents.map(dict => dict.uuid);
-            response = await fetch('http://localhost:8000/downloadDrawings_list/', {
+            response = await fetch(process.env.REACT_APP_API_PATH + '/downloadDrawings_list/', {
                 method: 'POST',
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -18,7 +18,7 @@ export async function DownloadDrawings(selectedStudents: Student[]): Promise<Fil
             }) 
         }
         else {
-            response = await fetch('http://localhost:8000/downloadDrawings_all/', {
+            response = await fetch(process.env.REACT_APP_API_PATH + '/downloadDrawings_all/', {
                 method: 'GET',
                 headers: {
                     "Access-Control-Allow-Origin": "*"
