@@ -68,7 +68,7 @@ class ExcelFile:
                 self.students.append(student_temp)                  
             inserted = Mongo().insert_all_into_mongodb(self.students)
             Mongo().close_client()
-            return {inserted["success"]}
+            return {'status': 'success' if inserted["success"] else 'failed'}
         except Exception as e:
             print(e)
 

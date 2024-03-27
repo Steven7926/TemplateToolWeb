@@ -1,5 +1,6 @@
 # Backend Ignores
 ./.env
+.env
 ./src/Templates.zip
 ./src/Drawings.zip
 **/__pycache__

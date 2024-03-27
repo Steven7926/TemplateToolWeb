@@ -12,12 +12,16 @@ from pyzbar.pyzbar import decode
 from PIL import Image
 import base64
 import  os
+from dotenv import load_dotenv
 
 app = FastAPI()
-
+load_dotenv()
+API_PATH_STRING = os.getenv('API_PATH_STRING')
 origins = [
     "http://localhost:3000",
     "https://localhost:3000",
+    "http://" + API_PATH_STRING + ":3000",
+    "https://" + API_PATH_STRING + ":3000",
 ]
 
 app.add_middleware(
