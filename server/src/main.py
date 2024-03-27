@@ -34,96 +34,121 @@ app.add_middleware(
 
 @app.get("/all_students/", response_description="Get all students for datatable display")
 def read_all_students() -> dict:
-    mongoInstance = Mongo()
-    students = mongoInstance.return_all_with_uuid()
-    res = []
-    for student in students:
-        uuid =  str(student.pop('_id'))
-        res.append({"uuid": uuid, **student})
-    mongoInstance.close_client()
-    return {"students": res}
+    try:
+        mongoInstance = Mongo()
+        students = mongoInstance.return_all_with_uuid()
+        res = []
+        for student in students:
+            uuid =  str(student.pop('_id'))
+            res.append({"uuid": uuid, **student})
+        mongoInstance.close_client()
+        return {"students": res}
+    except Exception as e:
+        print(e)
+        return {"students": []}
 
 @app.post("/student_update/", response_description="Update a field value for a student")
 def update_student_one_field(body: dict) -> dict:
-    mongoInstance = Mongo()
-    res = mongoInstance.update_student_one_field(body['student_id'], body["field"], body["value"])
-    mongoInstance.close_client()
-    return res
+    try:
+        mongoInstance = Mongo()
+        res = mongoInstance.update_student_one_field(body['student_id'], body["field"], body["value"])
+        mongoInstance.close_client()
+        return res
+    except Exception as e:
+        print(e)
 
 @app.post("/students_upload_excel/", response_description="Upload an excel file of student data")
 async def upload_students(file_upload: UploadFile = File(...)) -> dict:
-    contents = await file_upload.read()
-    status = ExcelFile().upload_to_monogo(contents)
-    return status
+    try:
+        contents = await file_upload.read()
+        status = ExcelFile().upload_to_monogo(contents)
+        return status
+    except Exception as e:
+        print(e)
+        return {"status": "failed"}
 
 @app.post("/students_delete/", response_description="Delete a single or list of students that were selected for deletion")
 def delete_selected_students(body: dict) -> dict:
-    mongoInstance = Mongo()
+    try:
+        mongoInstance = Mongo()
 
-    # Check if students keys value is list, if not just delete the single student
-    if not isinstance(body["students"], list):
-        res = mongoInstance.check_and_delete(body["students"]['uuid'])
-        mongoInstance.close_client()
-        if res["name"] is not None:
-            return {"status": "success"}
+        # Check if students keys value is list, if not just delete the single student
+        if not isinstance(body["students"], list):
+            res = mongoInstance.check_and_delete(body["students"]['uuid'])
+            mongoInstance.close_client()
+            if res["name"] is not None:
+                return {"status": "success"}
+            else:
+                return {"status": "failed"}
         else:
-            return {"status": "failed"}
-    else:
-        res_names  = []
-        for student in body["students"]:
-            res = mongoInstance.check_and_delete(student["uuid"])
-            res_names.append(res["name"])
-        mongoInstance.close_client()
-        if len(res_names) == len(body["students"]):
-            return {"status": "success"}
-        else:
-            return {"status": "failed"}
+            res_names  = []
+            for student in body["students"]:
+                res = mongoInstance.check_and_delete(student["uuid"])
+                res_names.append(res["name"])
+            mongoInstance.close_client()
+            if len(res_names) == len(body["students"]):
+                return {"status": "success"}
+            else:
+                return {"status": "failed"}
+    except Exception as e:
+        print(e)
+        return {"status": "failed"}
 
 @app.get("/students_delete_all/", response_description="Delete All Students in the DB")
 def delete_all_students() -> dict:
-    mongoInstance = Mongo()
-    res = mongoInstance.delete_all()
-    mongoInstance.close_client()
-    if res["success"]:
-        return {"status": "success"}
-    else:
+    try:
+        mongoInstance = Mongo()
+        res = mongoInstance.delete_all()
+        mongoInstance.close_client()
+        if res["success"]:
+            return {"status": "success"}
+        else:
+            return {"status": "failed"}
+    except Exception as e:
+        print(e)
         return {"status": "failed"}
     
 @app.get("/generatePDFs_all/", response_description="Generate PDFs for all students")
 def generatePDFs_for_all_students() -> FileResponse:
-    mongoInstance = Mongo()
-    students = mongoInstance.return_all_with_uuid()
-    pdfs_for_merger = []
-    for student in students:
-        student = Student(student)
-        template = Template(student)
-        main_path = check_path_exists("./pdfs/", student.school, student.student_class)
-        pdf = template.generate_pdf(main_path)
-        pdfs_for_merger.append(pdf)
-    mongoInstance.close_client()
-    zip_and_merge_pdfs(pdfs_for_merger)
+    try:
+        mongoInstance = Mongo()
+        students = mongoInstance.return_all_with_uuid()
+        pdfs_for_merger = []
+        for student in students:
+            student = Student(student)
+            template = Template(student)
+            main_path = check_path_exists("./pdfs/", student.school, student.student_class)
+            pdf = template.generate_pdf(main_path)
+            pdfs_for_merger.append(pdf)
+        mongoInstance.close_client()
+        zip_and_merge_pdfs(pdfs_for_merger)
 
-    response = FileResponse("../Templates.zip", filename="Templates.zip")
+        response = FileResponse("../Templates.zip", filename="Templates.zip")
 
-    return response
+        return response
+    except Exception as e:
+        print(e)
 
 @app.post("/generatePDFs_list/", response_description="Generate PDFs for a list of students")
 def generatePDFs_for_student_list(body: dict) -> FileResponse:
-    mongoInstance = Mongo()
-    pdfs_for_merger = []
-    for uuid in body["students"]:
-        student = mongoInstance.find_student(uuid)
-        student = Student(student)
-        template = Template(student, student.use_preset)
-        main_path = check_path_exists("./pdfs/", student.school, student.student_class)
-        pdf = template.generate_pdf(main_path)
-        pdfs_for_merger.append(pdf)
-    mongoInstance.close_client()
-    zip_and_merge_pdfs(pdfs_for_merger)
+    try:
+        mongoInstance = Mongo()
+        pdfs_for_merger = []
+        for uuid in body["students"]:
+            student = mongoInstance.find_student(uuid)
+            student = Student(student)
+            template = Template(student, student.use_preset)
+            main_path = check_path_exists("./pdfs/", student.school, student.student_class)
+            pdf = template.generate_pdf(main_path)
+            pdfs_for_merger.append(pdf)
+        mongoInstance.close_client()
+        zip_and_merge_pdfs(pdfs_for_merger)
 
-    response = FileResponse("../Templates.zip", filename="Templates.zip")
+        response = FileResponse("../Templates.zip", filename="Templates.zip")
 
-    return response
+        return response
+    except Exception as e:
+        print(e)
 
 @app.post("/upload_student_pdfs/", response_description="Upload student pdf files and update the students drawing")
 async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
@@ -164,59 +189,65 @@ async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
             os.remove("out_" + str(i) + ".png") if os.path.exists("out_" + str(i) + ".png") else None
             os.remove("image.png") if os.path.exists("image.png") else None
             mongoInstance.close_client()
-        os.remove("./"+file_upload.filename) if os.path.exists("./"+file_upload.filename) else None
         return {"status": "success"}
     except Exception as e:
         print(e)
-        return {"status": "failed"}
-    finally:
         os.remove("drawing.png") if os.path.exists("drawing.png") else None
         os.remove("qr_code.png") if os.path.exists("qr_code.png") else None
         os.remove("out_" + str(i) + ".png") if os.path.exists("out_" + str(i) + ".png") else None
         os.remove("image.png") if os.path.exists("image.png") else None
         os.remove("./"+file_upload.filename) if os.path.exists("./"+file_upload.filename) else None
+        return {"status": "failed"}
+        
 
 # Downloading all drawings
 @app.get("/downloadDrawings_all/", response_description="Download all drawings for all students")
 def downloadDrawings_all() -> FileResponse:
-    mongoInstance = Mongo()
-    students = mongoInstance.return_all_with_uuid()
-    res = [Student(student) for student in students]
-    mongoInstance.close_client()
+    try:
+        mongoInstance = Mongo()
+        students = mongoInstance.return_all_with_uuid()
+        res = [Student(student) for student in students]
+        mongoInstance.close_client()
 
-    for student in res:
-        image_name = student.split_name() + '_drawing.png' 
-        main_path = check_path_exists("./processed_images/", student.school, student.student_class)
-        all_files_path =  create_all_files_path("./processed_images/")
-        decoded = base64.b64decode(student.b64_image)
+        for student in res:
+            image_name = student.split_name() + '_drawing.png' 
+            main_path = check_path_exists("./processed_images/", student.school, student.student_class)
+            all_files_path =  create_all_files_path("./processed_images/")
+            decoded = base64.b64decode(student.b64_image)
 
-        with open(all_files_path + image_name, "wb") as f:
-            f.write(decoded)
-        with open(main_path + image_name, "wb") as f:
-            f.write(decoded)
-    zip_files('./processed_images', "../Drawings.zip")
+            with open(all_files_path + image_name, "wb") as f:
+                f.write(decoded)
+            with open(main_path + image_name, "wb") as f:
+                f.write(decoded)
+        zip_files('./processed_images', "../Drawings.zip")
 
-    response = FileResponse("../Drawings.zip", filename="Drawings.zip")
-    return response
+        response = FileResponse("../Drawings.zip", filename="Drawings.zip")
+        return response
+    except Exception as e:
+        print(e)
+
 
 # Downloading a list of students drawings
 @app.post("/downloadDrawings_list/", response_description="Download all drawings for students listed")
 def downloadDrawings_list(body: dict) -> FileResponse:
-    mongoInstance = Mongo()
-    res = [Student(mongoInstance.find_student(uuid)) for uuid in body["students"]]
-    mongoInstance.close_client()
+    try:
+        mongoInstance = Mongo()
+        res = [Student(mongoInstance.find_student(uuid)) for uuid in body["students"]]
+        mongoInstance.close_client()
 
-    for student in res:
-        image_name = student.split_name() + '_drawing.png' 
-        main_path = check_path_exists("./processed_images/", student.school, student.student_class)
-        all_files_path =  create_all_files_path("./processed_images/")
-        decoded = base64.b64decode(student.b64_image)
+        for student in res:
+            image_name = student.split_name() + '_drawing.png' 
+            main_path = check_path_exists("./processed_images/", student.school, student.student_class)
+            all_files_path =  create_all_files_path("./processed_images/")
+            decoded = base64.b64decode(student.b64_image)
 
-        with open(all_files_path + image_name, "wb") as f:
-            f.write(decoded)
-        with open(main_path + image_name, "wb") as f:
-            f.write(decoded)
-    zip_files('./processed_images', "../Drawings.zip")
+            with open(all_files_path + image_name, "wb") as f:
+                f.write(decoded)
+            with open(main_path + image_name, "wb") as f:
+                f.write(decoded)
+        zip_files('./processed_images', "../Drawings.zip")
 
-    response = FileResponse("../Drawings.zip", filename="Drawings.zip")
-    return response
+        response = FileResponse("../Drawings.zip", filename="Drawings.zip")
+        return response
+    except Exception as e:
+        print(e)
