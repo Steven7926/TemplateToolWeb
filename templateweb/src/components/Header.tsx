@@ -92,7 +92,7 @@ export default function Header(props: Props) {
                 <div className='flex flex-row'>
                   <Button type="button" label="Clear" icon="pi pi-filter-slash" outlined onClick={clearFilter} className='mx-2 py-2'/>
                   <span className="p-input-icon-right flex flex-row justify-center items-center">
-                      <InputText value={props.globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search" className='py-2 ml-1'/>
+                      <InputText value={props.globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search" className='py-2 ml-1 px-2'/>
                       <i className="pi pi-search"/>
                   </span>
                 </div>

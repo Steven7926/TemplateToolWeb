@@ -11,8 +11,9 @@ from student import Student
 # information that may be needed to build the template.
 
 class Template:
-    def __init__(self, student: Student):
+    def __init__(self, student: Student, preset: bool = False):
         self.pdf = (FPDF(orientation = 'P', unit = 'mm', format = 'A4'))
+        student.use_preset = preset
         self.student = student
         self.title = 'Draw your picture inside the lines'
         self.caption = 'Any drawing outside will be lost on the card'

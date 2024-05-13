@@ -58,7 +58,9 @@ services:
       - ./templateweb:/templateweb
       - /templateweb/node_modules
     environment:
-       - CHOKIDAR_USEPOLLING=true
+        - CHOKIDAR_USEPOLLING=true
+        - WATCHFILES_FORCE_POLLING=true
+        - WATCHPACK_POLLING=true
 
 networks:
   template-net:

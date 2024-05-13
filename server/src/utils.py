@@ -44,6 +44,8 @@ def zip_files(path, zipName):
     zf.close()
     shutil.rmtree(path)
 
+
+# Crops for QR code
 def find_contours_and_crop(image, name, inner_contours=False):
     # Convert to gray and apply GaussianBlur
     original = image.copy()
@@ -68,3 +70,9 @@ def find_contours_and_crop(image, name, inner_contours=False):
             else:
                 ROI = original[y:y+h, x:x+w]
             cv2.imwrite(name+'.png', ROI)
+
+# Manually Crop Image
+def manual_crop_image(image, name):
+    cropped = image[80:548, 80:520]
+    cv2.imwrite(name+'.png', cropped)
+    

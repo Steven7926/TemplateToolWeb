@@ -3,7 +3,7 @@ from mongo import Mongo
 from excel import ExcelFile
 from student import Student
 from template_generator import Template
-from utils import check_path_exists, zip_and_merge_pdfs, create_all_files_path, zip_files, find_contours_and_crop
+from utils import check_path_exists, zip_and_merge_pdfs, create_all_files_path, zip_files, find_contours_and_crop, manual_crop_image
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import pypdfium2 as pdfium
@@ -170,7 +170,7 @@ async def upload_student_pdfs(file_upload: UploadFile = File(...)) -> dict:
             # Load the image
             image = cv2.imread(processed_path)
             original = image.copy()
-            find_contours_and_crop(image, "drawing", True)
+            manual_crop_image(image, "drawing")
 
             # Cut image in half
             w, h = image.shape[1], image.shape[0]
