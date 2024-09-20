@@ -13,6 +13,7 @@ from PIL import Image
 import base64
 import  os
 from dotenv import load_dotenv
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 load_dotenv()
@@ -31,6 +32,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/", response_description="root path")
+def hello() -> dict:
+    message = {
+        "message": "App is running"
+    }
+    return JSONResponse(content=message)
 
 @app.get("/all_students/", response_description="Get all students for datatable display")
 def read_all_students() -> dict:

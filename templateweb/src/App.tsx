@@ -18,10 +18,33 @@ function App() {
   const inputExcelFile = useRef<HTMLInputElement | null>(null); 
   const inputPDFFile = useRef<HTMLInputElement | null>(null);
 
-  const fetchTableData = async () => {
+  const [classFilters, setClassFilters] = useState(["None"])
+  const [schoolFilters, setSchoolFilters] = useState(["None"])
+
+  const fetchTableData = async (schoolFilter: string = "None", classFilter: string = "None") => {
     try {
         const response: GetResponse = await GetAllStudents();
-        setStudents(response.students as Student[]);
+        const students = response.students as Student[];
+
+        if (schoolFilter == "None" && classFilter == "None"){
+          setSchoolFilters([...new Set(students.map(student => student.school)), "None"])
+          setClassFilters([...new Set(students.map(student => student.class)), "None"])
+        }
+
+        if (schoolFilter != "None"){
+          setClassFilters([...new Set(students.filter(student => student.school == schoolFilter).map(student => student.class)), "None"])
+
+          if (classFilter != "None")
+            setStudents(students.filter(student => student.school == schoolFilter && student.class == classFilter))
+          else
+            setStudents(students.filter(student => student.school == schoolFilter))
+        }
+        else if (schoolFilter == "None" && classFilter != "None"){
+          setSchoolFilters([...new Set(students.filter(student => student.class == classFilter).map(student => student.school)), "None"])
+          setStudents(students.filter(student => student.class == classFilter))
+        }
+        else setStudents(students)
+
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -93,7 +116,14 @@ function App() {
       </div>
       <div className='flex flex-col items-center justify-center'>
         <Fade duration={800} delay={500} direction="down" triggerOnce = {true} fraction={0} damping={0.5}>
-          <StudentsTable students={students} fetchTableData={fetchTableData} setIsLoading={setIsLoading}/>
+          <StudentsTable 
+            students={students} 
+            setStudents={setStudents} 
+            fetchTableData={fetchTableData} 
+            setIsLoading={setIsLoading} 
+            schools={schoolFilters} 
+            classes={classFilters}
+          />
         </Fade>
       </div>
     </div>

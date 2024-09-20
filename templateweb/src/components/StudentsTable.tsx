@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, Dispatch, SetStateAction } from "react";
 import { Student, StatusResponse, ImageModal, FileFetchResponse } from "../common/interfaces";
 import {DeleteStudents} from '../service/DeleteStudents';
 import {EditStudentInfo} from '../service/EditStudentInfo';
@@ -7,28 +7,39 @@ import {DownloadDrawings} from '../service/DownloadDrawings';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
 import { ContextMenu } from 'primereact/contextmenu';
 import Warning from "./Warning";
 import StudentDrawing from "./StudentDrawing";
 import { downloadFile } from "../common/utils";
-import { Dropdown } from 'primereact/dropdown';
 import Header from './Header'
-import { Checkbox } from "primereact/checkbox";
 
 interface TableProps {
     students: Student[];
+    setStudents: Dispatch<SetStateAction<Student[]>>;
     fetchTableData: Function;
     setIsLoading: Function;
+    schools: Array<string>; 
+    classes: Array<string>;
 }
 
-export default function StudentsTable ({students, fetchTableData, setIsLoading}: TableProps) {
+export default function StudentsTable (
+    {
+    students, 
+    setStudents, 
+    fetchTableData, setIsLoading, 
+    schools, 
+    classes, 
+    }: TableProps) {
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState(null);
     const [selectedStudents, setSelectedSudents] = useState([] as Student[]);
     const [warningVisible, setWarningVisible] = useState(false);
     const [imageModal, setImageModal] = useState({show: false, b64: '', student_name: ''} as ImageModal);
+    const [selectedSchool, setSelectedSchool] = useState<string>("None")
+    const [selectedClass, setSelectedClass] = useState<string>("None")
+
     const dt = useRef(null);
     const cm = useRef(null);
 
@@ -169,12 +180,33 @@ export default function StudentsTable ({students, fetchTableData, setIsLoading}:
             setSelectedSudents([...selectedStudents, e.data as Student]);
         cm.current.show(e.originalEvent)
     }
-        
+
 
     return (
         <div className='mb-5 max-w-[95vw]'>
             <ContextMenu model={menuModel} ref={cm} />
-            
+            <div className = "flex">
+                <p className="mr-2 pt-2">School Filter: </p>
+                <Dropdown
+                    placeholder="- Select a school -"
+                    options={schools}
+                    value={selectedSchool}
+                    onChange={(e) => {
+                        setSelectedSchool(e.value);      
+                        fetchTableData(e.value, selectedClass)
+                    }}
+            />
+            <p className="mr-2 ml-2 pt-2">Class Filter: </p>
+                <Dropdown
+                    placeholder="- Select a class -"
+                    options={classes}
+                    value={selectedClass}
+                    onChange={(e) => {
+                        setSelectedClass(e.value)
+                        fetchTableData(selectedSchool, e.value)
+                    }}
+            /> 
+            </div>
             <DataTable value={students} tableStyle={{ width:'auto' }} paginator rows={5} rowsPerPageOptions={[5, 10, 20, 50]}
                         paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
                         currentPageReportTemplate="{first} to {last} of {totalRecords}" paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
